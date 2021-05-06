@@ -17,17 +17,13 @@ on:
         default: "false"
         required: true
 jobs:
-  setup-infra:
+  install-docker:
     runs-on: ubuntu-20.04
     container:
       image: spy86/ansible:latest
     steps:
       - uses: actions/checkout@v2
       - name: "Install Docker"
-        run: ansible-playbook -i inventory.yml --extra-vars "
-          ansible_host=${{ github.event.inputs.host }}
-          ansible_user=${{ github.event.inputs.host_user }}
-          ansible_ssh_pass=${{ secrets[github.event.inputs.host_pass] }}
-          setup_shecan=${{ github.event.inputs.setup_shecan }}
-          "
-          install_docker.yml
+        run: |
+          HOST_PASS=$(cat $GITHUB_EVENT_PATH | grep host_pass | cut -d'"' -f4)
+          ansible-playbook install_docker.yml -i inventory.yml --extra-vars "ansible_host=${{ github.event.inputs.host }} ansible_user=${{ github.event.inputs.host_user }} ansible_ssh_pass=$HOST_PASS setup_shecan=${{ github.event.inputs.setup_shecan }}"
