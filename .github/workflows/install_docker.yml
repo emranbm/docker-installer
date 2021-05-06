@@ -1,0 +1,33 @@
+---
+name: "Install Docker"
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: "Host address (ip or hostname)"
+        required: true
+      host_user:
+        description: "Host user. (it should be sudoer)"
+        required: true
+      host_pass:
+        description: "Host ssh password"
+        required: true
+      setup_shecan:
+        description: 'Setup Shecan, making infra able to bypass sanctions. "true"/"false" (Highly recommended for Iran servers) (Thanks to shecan.ir)'
+        default: "false"
+        required: true
+jobs:
+  setup-infra:
+    runs-on: ubuntu-20.04
+    container:
+      image: spy86/ansible:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install Docker"
+        run: ansible-playbook -i inventory.yml --extra-vars "
+          ansible_host=${{ github.event.inputs.host }}
+          ansible_user=${{ github.event.inputs.host_user }}
+          ansible_ssh_pass=${{ secrets[github.event.inputs.host_pass] }}
+          setup_shecan=${{ github.event.inputs.setup_shecan }}
+          "
+          install_docker.yml
