@@ -25,5 +25,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Install Docker"
         run: |
+          # HOST_PASS var is inflated at runtime to prevent from being logged as plain text!
+          # For more details, see https://github.com/actions/runner/issues/643
           HOST_PASS=$(cat $GITHUB_EVENT_PATH | grep host_pass | cut -d'"' -f4)
           ansible-playbook install_docker.yml -i inventory.yml --extra-vars "ansible_host=${{ github.event.inputs.host }} ansible_user=${{ github.event.inputs.host_user }} ansible_ssh_pass=$HOST_PASS setup_shecan=${{ github.event.inputs.setup_shecan }}"
